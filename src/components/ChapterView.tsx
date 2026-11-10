@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAppStore } from '../store/appStore';
 import { useChapterStore } from '../store/chapterStore';
 import type { Folder } from '../types';
+import KnowledgeWeb from '../features/web/KnowledgeWeb';
 
 const TABS = [
   { id: 'web', label: 'Knowledge Web' },
@@ -77,7 +78,7 @@ export function ChapterView() {
       </header>
 
       <div className="min-h-0 flex-1" key={chapter.id}>
-        {tab === 'web' && <div className="empty">Knowledge Web</div>}
+        {tab === 'web' && <KnowledgeWeb />}
         {tab === 'notes' && <div className="empty">Notes</div>}
         {tab === 'bank' && <div className="empty">Question Bank</div>}
       </div>

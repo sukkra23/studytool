@@ -18,11 +18,11 @@ export default function App() {
   if (!ready) return <div className="empty">Loading…</div>;
 
   return (
-    <div className="print-ancestor flex h-full">
-      <div className="print-hide h-full">
+    <div className="flex h-full">
+      <div className="h-full">
         <Sidebar />
       </div>
-      <main className="print-ancestor h-full min-w-0 flex-1">
+      <main className="h-full min-w-0 flex-1">
         <ChapterView />
       </main>
       <ConfirmDialog />

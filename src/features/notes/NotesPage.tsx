@@ -95,6 +95,8 @@ export default function NotesPage() {
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === 'ArrowDown') {
               e.preventDefault();
+              // Focus synchronously so fast typing after Enter never lands back in the title.
+              editor?.view.focus();
               editor?.commands.focus('start');
             }
           }}

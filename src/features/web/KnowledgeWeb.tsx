@@ -29,7 +29,7 @@ import { uid } from '../../lib/id';
 import { Icon } from '../../components/Icon';
 import { confirm } from '../../components/ConfirmDialog';
 import { isEditableTarget, isModalOpen } from '../../components/Modal';
-import { addBox, addPoint, deleteItems, updatePoint } from './actions';
+import { absolutePosition, addBox, addPoint, deleteItems, updatePoint } from './actions';
 import { getWeb, useWebStore } from './webStore';
 import { PointNode } from './PointNode';
 import { BoxNode } from './BoxNode';
@@ -76,12 +76,9 @@ function buildEdges(web: WebData, prev: Edge[]): Edge[] {
     id: r.id,
     source: r.from,
     target: r.to,
-    sourceHandle: r.fromHandle ?? null,
-    targetHandle: r.toHandle ?? null,
     type: 'relation',
     data: { relation: r },
     selected: old.get(r.id)?.selected ?? false,
-    zIndex: 5,
     markerEnd: { type: MarkerType.ArrowClosed, color: relationColor(r.type), width: 18, height: 18 },
   }));
 }
@@ -131,13 +128,26 @@ function WebCanvas() {
     return rf.screenToFlowPosition({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
   }, [rf]);
 
-  const newPoint = useCallback(() => {
+  /** A free spot near the middle of the view, so new points never land exactly on top of each other. */
+  const freeSpot = useCallback(() => {
     const c = viewCenter();
-    const jitter = () => Math.round((Math.random() - 0.5) * 60);
-    const [next, point] = addPoint(getWeb(), c.x - 70 + jitter(), c.y - 25 + jitter());
+    const current = getWeb();
+    const taken = current.points.map((p) => absolutePosition(current, p));
+    let x = Math.round(c.x - 70);
+    let y = Math.round(c.y - 25);
+    while (taken.some((t) => Math.abs(t.x - x) < 24 && Math.abs(t.y - y) < 24)) {
+      x += 28;
+      y += 28;
+    }
+    return { x, y };
+  }, [viewCenter]);
+
+  const newPoint = useCallback(() => {
+    const { x, y } = freeSpot();
+    const [next, point] = addPoint(getWeb(), x, y);
     commit(next);
     useWebStore.setState({ editingPointId: point.id });
-  }, [commit, viewCenter]);
+  }, [commit, freeSpot]);
 
   const newBox = useCallback(() => {
     const c = viewCenter();
@@ -193,8 +203,6 @@ function WebCanvas() {
         id: uid(),
         from: c.source,
         to: c.target,
-        fromHandle: c.sourceHandle ?? null,
-        toHandle: c.targetHandle ?? null,
         type: 'structure',
         label: '',
         isNew: true,
@@ -249,8 +257,8 @@ function WebCanvas() {
         const p = current.points.find((x) => x.id === selected[0].id);
         if (p) commit(updatePoint(current, p.id, { images: [...p.images, ...ids] }));
       } else {
-        const c = viewCenter();
-        const [next] = addPoint(current, c.x - 70, c.y - 25, { title: 'Pasted image', images: ids });
+        const { x, y } = freeSpot();
+        const [next] = addPoint(current, x, y, { title: 'Pasted image', images: ids });
         commit(next);
       }
     };
@@ -260,7 +268,7 @@ function WebCanvas() {
       window.removeEventListener('keydown', onKey);
       window.removeEventListener('paste', onPaste);
     };
-  }, [commit, deleteSelected, redo, undo, viewCenter]);
+  }, [commit, deleteSelected, freeSpot, redo, undo]);
 
   const selectedCount = nodes.filter((n) => n.selected).length + edges.filter((e) => e.selected).length;
   const empty = web.points.length === 0 && web.boxes.length === 0;

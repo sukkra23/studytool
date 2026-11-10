@@ -295,8 +295,14 @@ body {
     size: A4;
     margin: 15mm;
   }
+  html,
   body.printing-sheet {
+    height: auto !important;
     background: #fff !important;
+  }
+  /* The worksheet lives in a portal on <body>, so the whole app can simply be dropped. */
+  body.printing-sheet #root {
+    display: none !important;
   }
   body.printing-sheet * {
     visibility: hidden;

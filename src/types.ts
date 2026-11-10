@@ -42,9 +42,6 @@ export interface Relation {
   to: string;
   type: RelationType;
   label: string;
-  /** Which side of the node the arrow attaches to. */
-  fromHandle?: string | null;
-  toHandle?: string | null;
 }
 
 export interface WebData {

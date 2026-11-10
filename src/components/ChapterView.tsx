@@ -3,6 +3,7 @@ import { useAppStore } from '../store/appStore';
 import { useChapterStore } from '../store/chapterStore';
 import type { Folder } from '../types';
 import NotesPage from '../features/notes/NotesPage';
+import QuestionBank from '../features/bank/QuestionBank';
 import KnowledgeWeb from '../features/web/KnowledgeWeb';
 
 const TABS = [
@@ -53,7 +54,7 @@ export function ChapterView() {
 
   return (
     <div className="flex h-full min-w-0 flex-col">
-      <header className="print-hide flex shrink-0 items-end justify-between gap-4 border-b border-line bg-surface px-5 pt-3">
+      <header className="flex shrink-0 items-end justify-between gap-4 border-b border-line bg-surface px-5 pt-3">
         <div className="min-w-0">
           <div className="truncate text-xs text-muted">{path.slice(0, -1).join(' / ')}</div>
           <div className="mb-2 truncate text-lg font-semibold leading-tight">{path[path.length - 1]}</div>
@@ -81,7 +82,7 @@ export function ChapterView() {
       <div className="min-h-0 flex-1" key={chapter.id}>
         {tab === 'web' && <KnowledgeWeb />}
         {tab === 'notes' && <NotesPage />}
-        {tab === 'bank' && <div className="empty">Question Bank</div>}
+        {tab === 'bank' && <QuestionBank />}
       </div>
     </div>
   );
